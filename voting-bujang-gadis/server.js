@@ -15,15 +15,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname))); 
 
 // ==========================================
-// 2. KONEKSI MONGODB ATLAS (LINK LANGSUNG)
+// 2. KONEKSI MONGODB AMAN UNTUK VERCEL
 // ==========================================
 const mongoURI = 'mongodb+srv://defriadyfarel2_db_user:WyFkQukXehv4X248@cluster0.pnnlotx.mongodb.net/votingDB?retryWrites=true&w=majority';
 
-mongoose.connect(mongoURI)
-    .then(() => console.log('Berhasil terhubung ke MongoDB Atlas'))
-    .catch(err => console.error('Koneksi MongoDB gagal:', err));
+let isConnected = false; // Status cache koneksi
 
-// Skema Database Finalis (Disesuaikan dengan admin.html)
+async function connectDB() {
+    if (isConnected) return;
+    try {
+        await mongoose.connect(mongoURI);
+        isConnected = true;
+        console.log('Berhasil terhubung ke MongoDB Atlas');
+    } catch (error) {
+        console.error('Koneksi MongoDB gagal:', error);
+        throw error;
+    }
+}
+
+// Skema Database Finalis
 const finalisSchema = new mongoose.Schema({
     nomor: { type: String, required: true },
     nama: { type: String, required: true },
@@ -31,7 +41,7 @@ const finalisSchema = new mongoose.Schema({
     foto: { type: String, required: true },
     vote: { type: Number, default: 0 }
 });
-const Finalis = mongoose.model('Finalis', finalisSchema);
+const Finalis = mongoose.models.Finalis || mongoose.model('Finalis', finalisSchema);
 
 // Skema Database Transaksi
 const transaksiSchema = new mongoose.Schema({
@@ -39,7 +49,7 @@ const transaksiSchema = new mongoose.Schema({
     status: String,
     jumlahBayar: Number
 });
-const Transaksi = mongoose.model('Transaksi', transaksiSchema);
+const Transaksi = mongoose.models.Transaksi || mongoose.model('Transaksi', transaksiSchema);
 
 // ==========================================
 // 3. KONFIGURASI MIDTRANS
@@ -57,39 +67,43 @@ const coreApi = new midtransClient.CoreApi({
 // Tampil data finalis
 app.get('/api/finalis', async (req, res) => {
     try {
+        await connectDB();
         const data = await Finalis.find().sort({ nomor: 1 });
         res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ error: 'Gagal mengambil data finalis' });
+        res.status(500).json({ error: 'Gagal mengambil data finalis', details: error.message });
     }
 });
 
 // Tambah data finalis
 app.post('/api/finalis', async (req, res) => {
     try {
+        await connectDB();
         const { nomor, nama, kategori, foto } = req.body;
         const finalisBaru = new Finalis({ nomor, nama, kategori, foto });
         await finalisBaru.save();
         res.status(201).json({ message: 'Finalis berhasil ditambahkan!', data: finalisBaru });
     } catch (error) {
         console.error('Error tambah finalis:', error);
-        res.status(500).json({ error: 'Gagal menyimpan data finalis ke database' });
+        res.status(500).json({ error: 'Gagal menyimpan data finalis ke database', details: error.message });
     }
 });
 
 // Hapus data finalis
 app.delete('/api/finalis/:id', async (req, res) => {
     try {
+        await connectDB();
         await Finalis.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: 'Finalis berhasil dihapus' });
     } catch (error) {
-        res.status(500).json({ error: 'Gagal menghapus finalis' });
+        res.status(500).json({ error: 'Gagal menghapus finalis', details: error.message });
     }
 });
 
 // Notifikasi pembayaran Midtrans
 app.post('/api/notification', async (req, res) => {
     try {
+        await connectDB();
         const notificationJson = req.body;
         const statusResponse = await coreApi.transaction.notification(notificationJson);
         
@@ -104,7 +118,7 @@ app.post('/api/notification', async (req, res) => {
         res.status(200).json({ status: 'OK' });
     } catch (error) {
         console.error('Notification error:', error);
-        res.status(500).json({ error: 'Notifikasi gagal diproses' });
+        res.status(500).json({ error: 'Notifikasi gagal diproses', details: error.message });
     }
 });
 
