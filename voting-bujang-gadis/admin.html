@@ -15,14 +15,12 @@
         .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); }
         h2 { margin-top: 0; color: var(--primary); }
         
-        /* Form Styling */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
         input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
         button { background: var(--primary); color: white; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
         button:hover { background: #0369a1; }
         
-        /* Table Styling */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
         th { background: #e0f2fe; color: var(--primary); }
@@ -39,7 +37,7 @@
         <p>Kelola Data Finalis Bujang Gadis 2026</p>
     </header>
 
-    <!-- Form Tambah Finalis -->
+    <!-- Form Tambah Finalis dengan Upload File -->
     <div class="card">
         <h2>Tambah Finalis Baru</h2>
         <form id="formTambah">
@@ -59,10 +57,10 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Link Foto (URL)</label>
-                <input type="url" id="foto" required placeholder="Contoh: https://link-foto.com/gambar.jpg">
+                <label>Pilih Foto Finalis (Dari Komputer/HP)</label>
+                <input type="file" id="fotoFile" accept="image/*" required>
             </div>
-            <button type="submit">Simpan Finalis</button>
+            <button type="submit" id="btnSimpan">Simpan Finalis</button>
         </form>
     </div>
 
@@ -81,14 +79,13 @@
                 </tr>
             </thead>
             <tbody id="tabelFinalis">
-                <!-- Data akan dimuat di sini menggunakan JavaScript -->
+                <!-- Data akan dimuat di sini -->
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // Memuat daftar finalis saat halaman dibuka
     async function loadAdminFinalis() {
         try {
             const res = await fetch('/api/finalis');
@@ -105,7 +102,7 @@
                         <td style="text-transform: capitalize;">${finalis.kategori}</td>
                         <td><strong>${finalis.vote}</strong></td>
                         <td>
-                            <button class="btn-delete" onclick="hapusFinalis('${finalis.id}')">Hapus</button>
+                            <button class="btn-delete" onclick="hapusFinalis('${finalis._id}')">Hapus</button>
                         </td>
                     </tr>
                 `;
@@ -115,42 +112,75 @@
         }
     }
 
-    // Fungsi Tambah Finalis
+    // Fungsi Tambah Finalis & Upload Otomatis ke ImgBB
     document.getElementById('formTambah').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const dataBaru = {
-            nama: document.getElementById('nama').value,
-            nomor: document.getElementById('nomor').value,
-            kategori: document.getElementById('kategori').value,
-            foto: document.getElementById('foto').value
-        };
+        const btnSimpan = document.getElementById('btnSimpan');
+        btnSimpan.innerText = "Mengunggah foto & menyimpan...";
+        btnSimpan.disabled = true;
 
-        try {
-            const res = await fetch('/api/finalis', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dataBaru)
-            });
+        const fileInput = document.getElementById('fotoFile').files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(fileInput);
+        
+        reader.onload = async function () {
+            const base64Image = reader.result.split(',')[1]; 
 
-            if (res.ok) {
-                alert("Finalis berhasil ditambahkan!");
-                document.getElementById('formTambah').reset(); // Kosongkan form
-                loadAdminFinalis(); // Refresh tabel
+            const formData = new FormData();
+            formData.append("image", base64Image);
+
+            try {
+                // Menggunakan API Key ImgBB Anda
+                const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=2568130731f6be7ce0c8213fe11141aa`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const imgbbData = await imgbbRes.json();
+
+                if (!imgbbData.success) {
+                    throw new Error("Gagal mengunggah foto ke server.");
+                }
+
+                const fotoUrl = imgbbData.data.url; // URL gambar asli yang valid
+
+                const dataBaru = {
+                    nama: document.getElementById('nama').value,
+                    nomor: document.getElementById('nomor').value,
+                    kategori: document.getElementById('kategori').value,
+                    foto: fotoUrl
+                };
+
+                const res = await fetch('/api/finalis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataBaru)
+                });
+
+                if (res.ok) {
+                    alert("Finalis dan foto berhasil ditambahkan!");
+                    document.getElementById('formTambah').reset();
+                    loadAdminFinalis();
+                } else {
+                    alert("Gagal menyimpan data ke database.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Terjadi kesalahan saat memproses gambar.");
+            } finally {
+                btnSimpan.innerText = "Simpan Finalis";
+                btnSimpan.disabled = false;
             }
-        } catch (error) {
-            alert("Terjadi kesalahan saat menyimpan data.");
-        }
+        };
     });
 
-    // Fungsi Hapus Finalis
     async function hapusFinalis(id) {
-        if (confirm("Apakah Anda yakin ingin menghapus finalis ini? Data vote-nya juga akan hilang!")) {
+        if (confirm("Apakah Anda yakin ingin menghapus finalis ini?")) {
             try {
                 const res = await fetch(`/api/finalis/${id}`, { method: 'DELETE' });
                 if (res.ok) {
                     alert("Finalis dihapus!");
-                    loadAdminFinalis(); // Refresh tabel
+                    loadAdminFinalis();
                 }
             } catch (error) {
                 alert("Gagal menghapus data.");
@@ -158,7 +188,6 @@
         }
     }
 
-    // Panggil fungsi muat data pertama kali
     loadAdminFinalis();
 </script>
 
