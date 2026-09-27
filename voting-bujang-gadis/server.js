@@ -7,32 +7,33 @@ const midtransClient = require('midtrans-client');
 const app = express();
 
 // ==========================================
-// 1. MIDDLEWARE (Wajib agar Vercel & HTML terhubung)
+// 1. MIDDLEWARE 
 // ==========================================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Membaca file HTML statis agar tidak error 404
 app.use(express.static(path.join(__dirname))); 
 
 // ==========================================
-// 2. KONEKSI MONGODB ATLAS
+// 2. KONEKSI MONGODB ATLAS (LINK LANGSUNG)
 // ==========================================
-mongoose.connect(process.env.MONGODB_URI)
+const mongoURI = 'mongodb+srv://defriadyfarel2_db_user:WyFkQukXehv4X248@cluster0.pnnlotx.mongodb.net/votingDB?retryWrites=true&w=majority';
+
+mongoose.connect(mongoURI)
     .then(() => console.log('Berhasil terhubung ke MongoDB Atlas'))
     .catch(err => console.error('Koneksi MongoDB gagal:', err));
 
-// Skema Database Finalis
+// Skema Database Finalis (Disesuaikan dengan admin.html)
 const finalisSchema = new mongoose.Schema({
-    nomorUrut: { type: Number, required: true },
+    nomor: { type: String, required: true },
     nama: { type: String, required: true },
-    kategori: { type: String, required: true }, // 'Bujang' atau 'Gadis'
-    jumlahVote: { type: Number, default: 0 }
+    kategori: { type: String, required: true }, 
+    foto: { type: String, required: true },
+    vote: { type: Number, default: 0 }
 });
 const Finalis = mongoose.model('Finalis', finalisSchema);
 
-// Skema Database Transaksi (Untuk Midtrans)
+// Skema Database Transaksi
 const transaksiSchema = new mongoose.Schema({
     orderId: String,
     status: String,
@@ -41,7 +42,7 @@ const transaksiSchema = new mongoose.Schema({
 const Transaksi = mongoose.model('Transaksi', transaksiSchema);
 
 // ==========================================
-// 3. KONFIGURASI MIDTRANS (Mode Sandbox)
+// 3. KONFIGURASI MIDTRANS
 // ==========================================
 const coreApi = new midtransClient.CoreApi({
     isProduction: false,
@@ -50,24 +51,24 @@ const coreApi = new midtransClient.CoreApi({
 });
 
 // ==========================================
-// 4. ROUTES API (Jalur komunikasi data)
+// 4. ROUTES API
 // ==========================================
 
-// Mengambil semua data finalis untuk ditampilkan di halaman vote
+// Tampil data finalis
 app.get('/api/finalis', async (req, res) => {
     try {
-        const data = await Finalis.find().sort({ nomorUrut: 1 });
+        const data = await Finalis.find().sort({ nomor: 1 });
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: 'Gagal mengambil data finalis' });
     }
 });
 
-// Menambahkan finalis baru (Digunakan di admin.html)
+// Tambah data finalis
 app.post('/api/finalis', async (req, res) => {
     try {
-        const { nomorUrut, nama, kategori } = req.body;
-        const finalisBaru = new Finalis({ nomorUrut, nama, kategori });
+        const { nomor, nama, kategori, foto } = req.body;
+        const finalisBaru = new Finalis({ nomor, nama, kategori, foto });
         await finalisBaru.save();
         res.status(201).json({ message: 'Finalis berhasil ditambahkan!', data: finalisBaru });
     } catch (error) {
@@ -76,7 +77,17 @@ app.post('/api/finalis', async (req, res) => {
     }
 });
 
-// Route Notifikasi Midtrans (Sesuai potongan kode Anda)
+// Hapus data finalis
+app.delete('/api/finalis/:id', async (req, res) => {
+    try {
+        await Finalis.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Finalis berhasil dihapus' });
+    } catch (error) {
+        res.status(500).json({ error: 'Gagal menghapus finalis' });
+    }
+});
+
+// Notifikasi pembayaran Midtrans
 app.post('/api/notification', async (req, res) => {
     try {
         const notificationJson = req.body;
@@ -85,15 +96,12 @@ app.post('/api/notification', async (req, res) => {
         let orderId = statusResponse.order_id;
         let transactionStatus = statusResponse.transaction_status;
 
-        // Cari transaksi di database
         const transaksi = await Transaksi.findOne({ orderId: orderId });
         if (transaksi) {
             transaksi.status = transactionStatus;
-            await transaksi.save(); // Menyimpan pembaruan status
+            await transaksi.save(); 
         }
-
         res.status(200).json({ status: 'OK' });
-        
     } catch (error) {
         console.error('Notification error:', error);
         res.status(500).json({ error: 'Notifikasi gagal diproses' });
@@ -101,10 +109,9 @@ app.post('/api/notification', async (req, res) => {
 });
 
 // ==========================================
-// 5. KONFIGURASI SERVER & EXPORT VERCEL
+// 5. SERVER & EXPORT VERCEL
 // ==========================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server berjalan di port ${PORT}`));
 
-// Baris INI yang membuat aplikasi Anda berfungsi di Vercel (Serverless)
 module.exports = app;
