@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Bujang Gadis 2026</title>
+    <style>
+        :root {
+            --primary: #0284c7; --bg-gradient: #f0f9ff; --card-bg: #ffffff;
+            --text-main: #0f172a; --border: #bae6fd;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); }
+        h2 { margin-top: 0; color: var(--primary); }
+        
+        /* Form Styling */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
+        button { background: var(--primary); color: white; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        button:hover { background: #0369a1; }
+        
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #e0f2fe; color: var(--primary); }
+        .btn-delete { background: #ef4444; padding: 6px 12px; width: auto; font-size: 0.8rem; }
+        .btn-delete:hover { background: #dc2626; }
+        img.preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Panel Admin</h1>
+        <p>Kelola Data Finalis Bujang Gadis 2026</p>
+    </header>
+
+    <!-- Form Tambah Finalis -->
+    <div class="card">
+        <h2>Tambah Finalis Baru</h2>
+        <form id="formTambah">
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="nama" required placeholder="Contoh: Budi Santoso">
+            </div>
+            <div class="form-group">
+                <label>Nomor Finalis</label>
+                <input type="text" id="nomor" required placeholder="Contoh: 01">
+            </div>
+            <div class="form-group">
+                <label>Kategori</label>
+                <select id="kategori" required>
+                    <option value="bujang">Bujang</option>
+                    <option value="gadis">Gadis</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Link Foto (URL)</label>
+                <input type="url" id="foto" required placeholder="Contoh: https://link-foto.com/gambar.jpg">
+            </div>
+            <button type="submit">Simpan Finalis</button>
+        </form>
+    </div>
+
+    <!-- Tabel Daftar Finalis -->
+    <div class="card">
+        <h2>Daftar Finalis</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Foto</th>
+                    <th>Nama</th>
+                    <th>Kategori</th>
+                    <th>Total Vote</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabelFinalis">
+                <!-- Data akan dimuat di sini menggunakan JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Memuat daftar finalis saat halaman dibuka
+    async function loadAdminFinalis() {
+        try {
+            const res = await fetch('/api/finalis');
+            const data = await res.json();
+            const tbody = document.getElementById('tabelFinalis');
+            tbody.innerHTML = '';
+
+            data.forEach(finalis => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${finalis.nomor}</td>
+                        <td><img src="${finalis.foto}" class="preview"></td>
+                        <td>${finalis.nama}</td>
+                        <td style="text-transform: capitalize;">${finalis.kategori}</td>
+                        <td><strong>${finalis.vote}</strong></td>
+                        <td>
+                            <button class="btn-delete" onclick="hapusFinalis('${finalis.id}')">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error("Gagal memuat data", error);
+        }
+    }
+
+    // Fungsi Tambah Finalis
+    document.getElementById('formTambah').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const dataBaru = {
+            nama: document.getElementById('nama').value,
+            nomor: document.getElementById('nomor').value,
+            kategori: document.getElementById('kategori').value,
+            foto: document.getElementById('foto').value
+        };
+
+        try {
+            const res = await fetch('/api/finalis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataBaru)
+            });
+
+            if (res.ok) {
+                alert("Finalis berhasil ditambahkan!");
+                document.getElementById('formTambah').reset(); // Kosongkan form
+                loadAdminFinalis(); // Refresh tabel
+            }
+        } catch (error) {
+            alert("Terjadi kesalahan saat menyimpan data.");
+        }
+    });
+
+    // Fungsi Hapus Finalis
+    async function hapusFinalis(id) {
+        if (confirm("Apakah Anda yakin ingin menghapus finalis ini? Data vote-nya juga akan hilang!")) {
+            try {
+                const res = await fetch(`/api/finalis/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert("Finalis dihapus!");
+                    loadAdminFinalis(); // Refresh tabel
+                }
+            } catch (error) {
+                alert("Gagal menghapus data.");
+            }
+        }
+    }
+
+    // Panggil fungsi muat data pertama kali
+    loadAdminFinalis();
+</script>
+
+</body>
+</html>
