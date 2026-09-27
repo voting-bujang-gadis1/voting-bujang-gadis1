@@ -112,7 +112,6 @@
         }
     }
 
-    // Fungsi Tambah Finalis & Upload Otomatis ke ImgBB
     document.getElementById('formTambah').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -131,7 +130,6 @@
             formData.append("image", base64Image);
 
             try {
-                // Menggunakan API Key ImgBB Anda
                 const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=2568130731f6be7ce0c8213fe11141aa`, {
                     method: 'POST',
                     body: formData
@@ -142,7 +140,7 @@
                     throw new Error("Gagal mengunggah foto ke server.");
                 }
 
-                const fotoUrl = imgbbData.data.url; // URL gambar asli yang valid
+                const fotoUrl = imgbbData.data.url;
 
                 const dataBaru = {
                     nama: document.getElementById('nama').value,
@@ -173,6 +171,8 @@
             }
         };
     });
+
+    async function hapusFiles(id) { /* placeholder */ }
 
     async function hapusFinalis(id) {
         if (confirm("Apakah Anda yakin ingin menghapus finalis ini?")) {
