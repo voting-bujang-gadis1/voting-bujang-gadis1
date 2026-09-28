@@ -11,7 +11,7 @@
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--text-main); margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 30px; }
+        header { text-align: center; margin-bottom: 20px; }
         .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); }
         h2 { margin-top: 0; color: var(--primary); }
         
@@ -26,28 +26,29 @@
         th { background: #e0f2fe; color: var(--primary); }
         .btn-delete { background: #ef4444; padding: 6px 12px; width: auto; font-size: 0.8rem; }
         .btn-delete:hover { background: #dc2626; }
-        img.preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+        .btn-reset { background: #991b1b; padding: 8px 15px; }
+        .btn-reset:hover { background: #7f1d1d; }
+        img.preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; background: #e2e8f0; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Panel Admin Bujang Gadis</h1>
+        <h1>Panel Admin</h1>
         <p>Kelola Data dan Foto Finalis</p>
     </header>
 
-    <!-- Form Tambah Finalis -->
     <div class="card">
         <h2>Tambah Finalis Baru</h2>
         <form id="formTambah">
             <div class="form-group">
                 <label>Nama Lengkap</label>
-                <input type="text" id="nama" required placeholder="Contoh: Budi Santoso">
+                <input type="text" id="nama" required>
             </div>
             <div class="form-group">
                 <label>Nomor Finalis</label>
-                <input type="text" id="nomor" required placeholder="Contoh: 01">
+                <input type="text" id="nomor" required>
             </div>
             <div class="form-group">
                 <label>Kategori</label>
@@ -57,16 +58,18 @@
                 </select>
             </div>
             <div class="form-group">
-                <label style="color: #0284c7;">Pilih File Foto dari Perangkat:</label>
+                <label style="color: #0284c7;">Pilih File Foto (Otomatis Upload):</label>
                 <input type="file" id="fotoFile" accept="image/*" required style="background: #e0f2fe; padding: 10px; cursor: pointer;">
             </div>
             <button type="submit" id="btnSimpan">Simpan Finalis</button>
         </form>
     </div>
 
-    <!-- Tabel Daftar Finalis (INI YANG MEMBUAT FOTO MUNCUL) -->
     <div class="card">
-        <h2>Daftar Finalis</h2>
+        <h2 style="display: flex; justify-content: space-between; align-items: center;">
+            Daftar Finalis
+            <button class="btn-reset" onclick="resetDatabase()" style="width: auto; font-size: 0.8rem;">⚠️ Reset Semua Data</button>
+        </h2>
         <table>
             <thead>
                 <tr>
@@ -74,19 +77,16 @@
                     <th>Foto</th>
                     <th>Nama</th>
                     <th>Kategori</th>
-                    <th>Total Vote</th>
+                    <th>Vote</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody id="tabelFinalis">
-                <!-- Data dari database akan muncul di sini otomatis -->
-            </tbody>
+            <tbody id="tabelFinalis"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // Fungsi untuk menarik data dari database dan menampilkannya beserta foto
     async function loadAdminFinalis() {
         try {
             const res = await fetch('/api/finalis');
@@ -95,16 +95,26 @@
             tbody.innerHTML = '';
 
             data.forEach(finalis => {
+                // Deteksi jika ID atau Foto cacat
+                const idAman = finalis._id || finalis.id; 
+                const fotoAman = (finalis.foto && finalis.foto.includes('http')) ? finalis.foto : '';
+                
+                let fotoHTML = fotoAman 
+                    ? `<img src="${fotoAman}" class="preview">` 
+                    : `<span style="color:red; font-size: 10px;">Foto Rusak</span>`;
+
+                let aksiHTML = idAman 
+                    ? `<button class="btn-delete" onclick="hapusFinalis('${idAman}')">Hapus</button>`
+                    : `<span style="color:red; font-size: 10px;">Data Cacat</span>`;
+
                 tbody.innerHTML += `
                     <tr>
                         <td>${finalis.nomor}</td>
-                        <td><img src="${finalis.foto}" class="preview"></td>
+                        <td>${fotoHTML}</td>
                         <td>${finalis.nama}</td>
                         <td style="text-transform: capitalize;">${finalis.kategori}</td>
                         <td><strong>${finalis.vote || 0}</strong></td>
-                        <td>
-                            <button class="btn-delete" onclick="hapusFinalis('${finalis._id}')">Hapus</button>
-                        </td>
+                        <td>${aksiHTML}</td>
                     </tr>
                 `;
             });
@@ -113,12 +123,10 @@
         }
     }
 
-    // Fungsi upload foto dan simpan data
     document.getElementById('formTambah').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const btnSimpan = document.getElementById('btnSimpan');
-        btnSimpan.innerText = "Mengunggah foto & menyimpan...";
+        btnSimpan.innerText = "Mengunggah...";
         btnSimpan.disabled = true;
 
         const fileInput = document.getElementById('fotoFile').files[0];
@@ -127,32 +135,23 @@
         
         reader.onload = async function () {
             const base64Image = reader.result.split(',')[1]; 
-
             const formData = new FormData();
             formData.append("image", base64Image);
 
             try {
-                // Upload ke ImgBB
                 const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=2568130731f6be7ce0c8213fe11141aa`, {
-                    method: 'POST',
-                    body: formData
+                    method: 'POST', body: formData
                 });
                 const imgbbData = await imgbbRes.json();
-
-                if (!imgbbData.success) {
-                    throw new Error("Gagal mengunggah foto ke server.");
-                }
-
-                const fotoUrl = imgbbData.data.url;
+                if (!imgbbData.success) throw new Error("Gagal upload");
 
                 const dataBaru = {
                     nama: document.getElementById('nama').value,
                     nomor: document.getElementById('nomor').value,
                     kategori: document.getElementById('kategori').value,
-                    foto: fotoUrl
+                    foto: imgbbData.data.url
                 };
 
-                // Simpan ke database
                 const res = await fetch('/api/finalis', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -160,15 +159,12 @@
                 });
 
                 if (res.ok) {
-                    alert("Finalis dan foto berhasil ditambahkan!");
+                    alert("Berhasil!");
                     document.getElementById('formTambah').reset();
-                    loadAdminFinalis(); // Refresh tabel agar foto langsung muncul
-                } else {
-                    alert("Gagal menyimpan data ke database.");
+                    loadAdminFinalis(); 
                 }
             } catch (error) {
-                console.error(error);
-                alert("Terjadi kesalahan saat memproses gambar.");
+                alert("Gagal memproses gambar.");
             } finally {
                 btnSimpan.innerText = "Simpan Finalis";
                 btnSimpan.disabled = false;
@@ -176,23 +172,35 @@
         };
     });
 
-    // Fungsi menghapus data
     async function hapusFinalis(id) {
-        if (confirm("Apakah Anda yakin ingin menghapus finalis ini?")) {
+        if (confirm("Hapus finalis ini?")) {
             try {
                 const res = await fetch(`/api/finalis/${id}`, { method: 'DELETE' });
-                if (res.ok) {
-                    loadAdminFinalis(); // Refresh tabel setelah dihapus
-                }
+                if (res.ok) loadAdminFinalis();
             } catch (error) {
                 alert("Gagal menghapus data.");
             }
         }
     }
 
-    // Panggil fungsi tampilkan tabel saat halaman dibuka
+    // Fungsi Darurat Reset Database
+    async function resetDatabase() {
+        if (confirm("BAHAYA: Anda yakin ingin MENGHAPUS SEMUA DATA FINALIS? Gunakan ini untuk menyingkirkan data cacat.")) {
+            try {
+                const res = await fetch(`/api/reset`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert("Database kembali bersih! Silakan input finalis baru.");
+                    loadAdminFinalis();
+                } else {
+                    alert("Gagal reset data dari server.");
+                }
+            } catch (error) {
+                alert("Gagal menghubungi server.");
+            }
+        }
+    }
+
     loadAdminFinalis();
 </script>
-
 </body>
 </html>

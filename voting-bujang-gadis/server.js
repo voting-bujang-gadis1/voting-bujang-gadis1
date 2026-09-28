@@ -72,6 +72,15 @@ app.delete('/api/finalis/:id', async (req, res) => {
         res.status(500).json({ message: "Terjadi kesalahan saat menghapus data" });
     }
 });
+// Fitur Darurat: Reset / Hapus Semua Data
+app.delete('/api/reset', async (req, res) => {
+    try {
+        await Finalis.deleteMany({});
+        res.status(200).json({ message: "Database kembali bersih!" });
+    } catch (error) {
+        res.status(500).json({ message: "Gagal reset data" });
+    }
+});
 
 // =========================================================================
 // Ekspor module untuk Vercel Serverless Function
