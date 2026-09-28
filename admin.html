@@ -10,45 +10,48 @@
         .container { max-width: 800px; margin: 0 auto; }
         header { text-align: center; margin-bottom: 20px; }
         .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); }
-        h2 { margin-top: 0; color: var(--primary); }
+        h2 { margin-top: 0; color: var(--primary); font-size: 1.2rem;}
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit;}
         button { background: var(--primary); color: white; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
         button:hover { background: #0369a1; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem;}
         th { background: #e0f2fe; color: var(--primary); }
         .btn-delete { background: #ef4444; padding: 6px 12px; width: auto; font-size: 0.8rem; }
         .btn-reset { background: #991b1b; padding: 8px 15px; }
         img.preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; background: #e2e8f0; }
+        img.logo-preview { width: 80px; height: 80px; object-fit: contain; border-radius: 50%; border: 2px solid #bae6fd; margin-bottom: 10px; display: block;}
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>Panel Admin</h1>
-        <p>Kelola Data, Foto, dan Biodata Finalis</p>
-    </header>
+    <header><h1>Panel Admin</h1><p>Kelola Pengaturan Web & Data Finalis</p></header>
+
+    <!-- PENGATURAN WEBSITE (Logo & Judul) -->
+    <div class="card" style="border-left: 5px solid #0ea5e9;">
+        <h2>⚙️ Pengaturan Identitas Website</h2>
+        <form id="formPengaturan">
+            <img id="previewLogo" src="https://via.placeholder.com/150/0056b3/FFFFFF?text=LOGO" class="logo-preview" alt="Logo Saat Ini">
+            
+            <div class="form-group"><label>Ubah Logo Event (Opsional)</label><input type="file" id="logoFile" accept="image/*"></div>
+            <div class="form-group"><label>Judul Event Utama</label><input type="text" id="judulWeb" required></div>
+            <div class="form-group"><label>Sub-judul / Deskripsi Pendek</label><input type="text" id="subjudulWeb" required></div>
+            <button type="submit" id="btnSimpanPengaturan" style="background: #0ea5e9;">Simpan Pengaturan Web</button>
+        </form>
+    </div>
 
     <div class="card">
-        <h2>Tambah Finalis Baru</h2>
+        <h2>👤 Tambah Finalis Baru</h2>
         <form id="formTambah">
             <div class="form-group"><label>Nama Lengkap</label><input type="text" id="nama" required></div>
             <div class="form-group"><label>Nomor Finalis</label><input type="text" id="nomor" required></div>
-            <div class="form-group"><label>Kategori</label>
-                <select id="kategori" required><option value="bujang">Bujang</option><option value="gadis">Gadis</option></select>
-            </div>
-            
-            <!-- Tambahan Biodata & Visi Misi -->
-            <div class="form-group"><label>Biodata Singkat</label><textarea id="biodata" rows="3" placeholder="Contoh: Lahir di Palembang, Hobi Membaca..."></textarea></div>
-            <div class="form-group"><label>Visi & Misi</label><textarea id="visiMisi" rows="3" placeholder="Contoh: Menjadikan generasi muda berbudaya..."></textarea></div>
-            
-            <div class="form-group">
-                <label style="color: #0284c7;">Pilih File Foto:</label>
-                <input type="file" id="fotoFile" accept="image/*" required style="background: #e0f2fe; padding: 10px;">
-            </div>
+            <div class="form-group"><label>Kategori</label><select id="kategori" required><option value="bujang">Bujang</option><option value="gadis">Gadis</option></select></div>
+            <div class="form-group"><label>Biodata Singkat</label><textarea id="biodata" rows="3"></textarea></div>
+            <div class="form-group"><label>Visi & Misi</label><textarea id="visiMisi" rows="3"></textarea></div>
+            <div class="form-group"><label style="color: #0284c7;">Pilih File Foto (Wajib):</label><input type="file" id="fotoFile" accept="image/*" required style="background: #e0f2fe; padding: 10px;"></div>
             <button type="submit" id="btnSimpan">Simpan Finalis</button>
         </form>
     </div>
@@ -65,6 +68,62 @@
 </div>
 
 <script>
+    // --- FITUR PENGATURAN WEB ---
+    async function loadPengaturan() {
+        try {
+            const res = await fetch('/api/pengaturan');
+            const config = await res.json();
+            document.getElementById('judulWeb').value = config.judul;
+            document.getElementById('subjudulWeb').value = config.subjudul;
+            document.getElementById('previewLogo').src = config.logo;
+        } catch (error) { console.error("Gagal load pengaturan"); }
+    }
+
+    document.getElementById('formPengaturan').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnSimpanPengaturan');
+        btn.innerText = "Menyimpan..."; btn.disabled = true;
+
+        const dataPengaturan = {
+            judul: document.getElementById('judulWeb').value,
+            subjudul: document.getElementById('subjudulWeb').value
+        };
+
+        const fileLogo = document.getElementById('logoFile').files[0];
+        
+        if (fileLogo) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = async function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 200; // Logo dikecilkan
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    dataPengaturan.logo = canvas.toDataURL('image/png', 0.8);
+                    await simpanPengaturanKeServer(dataPengaturan);
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(fileLogo);
+        } else {
+            await simpanPengaturanKeServer(dataPengaturan);
+        }
+    });
+
+    async function simpanPengaturanKeServer(data) {
+        try {
+            const res = await fetch('/api/pengaturan', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+            });
+            if(res.ok) { alert("Pengaturan Website Berhasil Diperbarui!"); loadPengaturan(); }
+        } catch (e) { alert("Gagal update pengaturan"); }
+        finally { document.getElementById('btnSimpanPengaturan').innerText = "Simpan Pengaturan Web"; document.getElementById('btnSimpanPengaturan').disabled = false; }
+    }
+
+    // --- FITUR FINALIS (Sama seperti sebelumnya) ---
     async function loadAdminFinalis() {
         const res = await fetch('/api/finalis');
         const data = await res.json();
@@ -80,8 +139,7 @@
     document.getElementById('formTambah').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btnSimpan');
-        btn.innerText = "Menyimpan ke Database...";
-        btn.disabled = true;
+        btn.innerText = "Menyimpan ke Database..."; btn.disabled = true;
 
         const file = document.getElementById('fotoFile').files[0];
         const reader = new FileReader();
@@ -92,32 +150,20 @@
                 const canvas = document.createElement('canvas');
                 const MAX_WIDTH = 300;
                 const scaleSize = MAX_WIDTH / img.width;
-                canvas.width = MAX_WIDTH;
-                canvas.height = img.height * scaleSize;
-                
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 const fotoBase64 = canvas.toDataURL('image/jpeg', 0.7); 
 
                 const dataBaru = {
-                    nama: document.getElementById('nama').value,
-                    nomor: document.getElementById('nomor').value,
-                    kategori: document.getElementById('kategori').value,
-                    foto: fotoBase64,
-                    biodata: document.getElementById('biodata').value, // Ambil teks biodata
-                    visiMisi: document.getElementById('visiMisi').value // Ambil teks visi misi
+                    nama: document.getElementById('nama').value, nomor: document.getElementById('nomor').value,
+                    kategori: document.getElementById('kategori').value, foto: fotoBase64,
+                    biodata: document.getElementById('biodata').value, visiMisi: document.getElementById('visiMisi').value 
                 };
 
                 try {
-                    const res = await fetch('/api/finalis', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataBaru)
-                    });
-                    if (res.ok) {
-                        alert("Berhasil!");
-                        document.getElementById('formTambah').reset();
-                        loadAdminFinalis(); 
-                    } else { alert("Gagal menyimpan ke server."); }
-                } catch (err) { alert("Terjadi kesalahan jaringan."); }
+                    const res = await fetch('/api/finalis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataBaru) });
+                    if (res.ok) { alert("Berhasil!"); document.getElementById('formTambah').reset(); loadAdminFinalis(); }
+                } catch (err) { alert("Kesalahan jaringan."); }
                 finally { btn.innerText = "Simpan Finalis"; btn.disabled = false; }
             }
             img.src = event.target.result;
@@ -125,13 +171,10 @@
         reader.readAsDataURL(file);
     });
 
-    async function hapusFinalis(id) {
-        if (confirm("Hapus?")) { await fetch(`/api/finalis/${id}`, { method: 'DELETE' }); loadAdminFinalis(); }
-    }
-    async function resetDatabase() {
-        if (confirm("Reset total?")) { await fetch(`/api/reset`, { method: 'DELETE' }); loadAdminFinalis(); }
-    }
+    async function hapusFinalis(id) { if (confirm("Hapus?")) { await fetch(`/api/finalis/${id}`, { method: 'DELETE' }); loadAdminFinalis(); } }
+    async function resetDatabase() { if (confirm("Reset total?")) { await fetch(`/api/reset`, { method: 'DELETE' }); loadAdminFinalis(); } }
 
+    loadPengaturan();
     loadAdminFinalis();
 </script>
 </body>
