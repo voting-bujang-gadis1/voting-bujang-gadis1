@@ -14,6 +14,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        html {
+            scroll-behavior: smooth; /* Efek meluncur halus saat menu diklik */
+        }
         :root { 
             --blue-kreen: #0056b3; 
             --bg-main: #f5f6f8; 
@@ -35,29 +38,30 @@
 
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
 
-        /* MENU TABS KREENCONNECT STYLE */
-        .tab-menu {
+        /* MENU NAVIGASI STICKY (Nempel di atas saat di-scroll) */
+        .nav-sticky {
+            position: sticky; top: 0; z-index: 100;
             display: flex; background: var(--card-bg); border-radius: 8px; overflow: hidden;
-            border: 1px solid var(--border-color); margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color); margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .tab-btn {
+        .nav-btn {
             flex: 1; background: none; border: none; padding: 15px 10px; font-size: 0.95rem; font-weight: 600;
             color: var(--text-muted); cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent;
+            text-align: center; text-decoration: none;
         }
-        .tab-btn:hover { background: #f8f9fa; color: var(--blue-kreen); }
-        .tab-btn.active { color: var(--blue-kreen); border-bottom: 3px solid var(--blue-kreen); background: #f0f7ff; }
+        .nav-btn:hover { background: #f0f7ff; color: var(--blue-kreen); }
 
-        /* KONTEN TAB */
-        .tab-content { display: none; animation: fadeIn 0.3s; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* SECTION / KELOMPOK AREA */
+        .section-block {
+            margin-bottom: 40px;
+            scroll-margin-top: 80px; /* Jarak aman dari menu sticky */
+        }
 
-        /* DESKRIPSI & BOX UMUM */
         .section-box {
             background: var(--card-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
         }
-        .section-box h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--blue-kreen); }
+        .section-box h3, .section-title { margin: 0 0 15px 0; font-size: 1.2rem; color: var(--blue-kreen); font-weight: 700; }
         .section-box p { margin: 0; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6; }
         
         .search-bar { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; background: #fafafa; }
@@ -71,7 +75,7 @@
         @media (max-width: 600px) {
             .card-finalis { flex-direction: column; align-items: flex-start; }
             .action-area { width: 100%; justify-content: space-between; flex-direction: row; align-items: center; }
-            .tab-btn { font-size: 0.8rem; padding: 12px 5px; }
+            .nav-btn { font-size: 0.8rem; padding: 12px 5px; }
         }
 
         .foto-container { width: 80px; height: 100px; flex-shrink: 0; background: #eee; border-radius: 6px; overflow: hidden;}
@@ -111,48 +115,48 @@
 
 <div class="container">
     
-    <!-- NAVIGATION TABS -->
-    <div class="tab-menu">
-        <button class="tab-btn active" onclick="bukaTab(event, 'tab-deskripsi')">Deskripsi</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'tab-leaderboard')">Leaderboard</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'tab-finalis')">Finalis</button>
-        <button class="tab-btn" onclick="bukaTab(event, 'tab-dukungan')">Dukungan</button>
+    <!-- NAVIGATION BAR (Sistem Scroll Otomatis) -->
+    <div class="nav-sticky">
+        <button class="nav-btn" onclick="scrollToSection('sec-deskripsi')">Deskripsi</button>
+        <button class="nav-btn" onclick="scrollToSection('sec-leaderboard')">Leaderboard</button>
+        <button class="nav-btn" onclick="scrollToSection('sec-finalis')">Finalis</button>
+        <button class="nav-btn" onclick="scrollToSection('sec-dukungan')">Dukungan</button>
     </div>
 
-    <!-- TAB 1: DESKRIPSI -->
-    <div id="tab-deskripsi" class="tab-content active">
+    <!-- 1. KOTAK DESKRIPSI -->
+    <div id="sec-deskripsi" class="section-block">
         <div class="section-box">
             <h3>Tentang Event</h3>
             <p>Vote your Favorite. Voting tertinggi akan mendapatkan golden ticket finalis untuk langsung masuk ke babak selanjutnya. Dukung jagoanmu sekarang agar tidak tereliminasi!</p>
             <br>
             <h3>Syarat & Ketentuan</h3>
-            <p>- Harga 1 Vote adalah Rp 5.000<br>- Pembayaran menggunakan metode QRIS, GoPay, dan Transfer Bank<br>- Vote yang sudah masuk tidak dapat dibatalkan</p>
+            <p>- Harga 1 Vote adalah Rp 5.000<br>- Pembayaran menggunakan QRIS, GoPay, dan Transfer Bank<br>- Vote yang sudah masuk tidak dapat dibatalkan</p>
         </div>
     </div>
 
-    <!-- TAB 2: LEADERBOARD -->
-    <div id="tab-leaderboard" class="tab-content">
-        <h3 style="margin-bottom: 15px;">Peringkat Tertinggi (Top Finalis)</h3>
+    <!-- 2. KOTAK LEADERBOARD -->
+    <div id="sec-leaderboard" class="section-block">
+        <h3 class="section-title">🏆 Klasemen Leaderboard</h3>
         <div id="listLeaderboard" class="list-container">
             <p style="text-align: center; color: #777;">Memuat klasemen...</p>
         </div>
     </div>
 
-    <!-- TAB 3: FINALIS (Daftar & Vote) -->
-    <div id="tab-finalis" class="tab-content">
+    <!-- 3. KOTAK DAFTAR FINALIS -->
+    <div id="sec-finalis" class="section-block">
         <div class="section-box" style="padding: 15px;">
             <input type="text" class="search-bar" placeholder="Temukan Finalis..." readonly>
         </div>
-        <h3 style="margin-bottom: 15px;">Vote Finalis Favoritmu</h3>
+        <h3 class="section-title">✨ Vote Finalis Favoritmu</h3>
         <div id="listFinalis" class="list-container">
             <p style="text-align: center; color: #777;">Memuat data finalis...</p>
         </div>
     </div>
 
-    <!-- TAB 4: DUKUNGAN (Riwayat Donatur) -->
-    <div id="tab-dukungan" class="tab-content">
+    <!-- 4. KOTAK DUKUNGAN -->
+    <div id="sec-dukungan" class="section-block">
         <div class="section-box">
-            <h3>Dukungan Terbaru</h3>
+            <h3>🤝 Dukungan Terbaru</h3>
             <p style="text-align: center; color: #777; padding: 20px 0;">Belum ada riwayat dukungan yang ditampilkan.</p>
         </div>
     </div>
@@ -181,21 +185,12 @@
 <script>
     let dataFinalisGlobal = [];
 
-    // FUNGSI GANTI TAB
-    function bukaTab(evt, tabName) {
-        let i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-            tabcontent[i].classList.remove("active");
+    // FUNGSI SCROLL KETIKA NAVIGASI DIKLIK
+    function scrollToSection(sectionId) {
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.scrollIntoView({ behavior: 'smooth' });
         }
-        tablinks = document.getElementsByClassName("tab-btn");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].classList.remove("active");
-        }
-        document.getElementById(tabName).style.display = "block";
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.classList.add("active");
     }
 
     async function loadVotingFinalis() {
@@ -215,7 +210,7 @@
                 return;
             }
 
-            // 1. RENDER TAB FINALIS
+            // 1. RENDER DAFTAR FINALIS
             dataFinalisGlobal.forEach((finalis, index) => {
                 const inputId = `jumlah_vote_${finalis._id}`;
                 const fotoHTML = finalis.foto 
@@ -243,7 +238,7 @@
                 `;
             });
 
-            // 2. RENDER TAB LEADERBOARD (Otomatis urut dari tertinggi)
+            // 2. RENDER LEADERBOARD (Otomatis urut berdasarkan jumlah vote terbanyak)
             const sortedData = [...dataFinalisGlobal].sort((a, b) => (b.vote || 0) - (a.vote || 0));
             
             sortedData.forEach((finalis, index) => {
