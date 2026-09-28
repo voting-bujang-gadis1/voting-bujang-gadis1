@@ -10,116 +10,91 @@
             src="https://app.sandbox.midtrans.com/snap/snap.js"
             data-client-key="SB-Mid-client-J0bLntU0o8QdZkI9"></script>
 
-    <!-- FONT GOOGLE: Roboto / Inter (Sesuai gaya KreenConnect) -->
+    <!-- FONT GOOGLE: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root { 
-            --primary: #10b981; /* Warna hijau khas beberapa event, atau bisa disesuaikan */
-            --blue-kreen: #0056b3; /* Biru khas tombol Kreen */
+            --blue-kreen: #0056b3; 
             --bg-main: #f5f6f8; 
             --card-bg: #ffffff; 
             --text-dark: #333333;
             --text-muted: #777777;
             --border-color: #e0e0e0;
         }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-main); 
-            margin: 0; 
-            padding: 0; 
-            color: var(--text-dark);
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-main); margin: 0; padding: 0; color: var(--text-dark); }
 
         /* HEADER / BANNER AREA */
         .banner-img {
-            width: 100%;
-            height: 200px;
+            width: 100%; height: 220px;
             background: linear-gradient(135deg, #0056b3, #0084ff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.8rem; font-weight: 700; text-align: center; padding: 20px; box-sizing: border-box;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
         }
 
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
 
-        /* DESKRIPSI & PENCARIAN (Ala Kreen) */
+        /* MENU TABS KREENCONNECT STYLE */
+        .tab-menu {
+            display: flex; background: var(--card-bg); border-radius: 8px; overflow: hidden;
+            border: 1px solid var(--border-color); margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .tab-btn {
+            flex: 1; background: none; border: none; padding: 15px 10px; font-size: 0.95rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent;
+        }
+        .tab-btn:hover { background: #f8f9fa; color: var(--blue-kreen); }
+        .tab-btn.active { color: var(--blue-kreen); border-bottom: 3px solid var(--blue-kreen); background: #f0f7ff; }
+
+        /* KONTEN TAB */
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DESKRIPSI & BOX UMUM */
         .section-box {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
+            background: var(--card-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
         }
-        .section-box h3 { margin: 0 0 10px 0; font-size: 1.1rem; }
-        .section-box p { margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+        .section-box h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--blue-kreen); }
+        .section-box p { margin: 0; color: var(--text-dark); font-size: 0.95rem; line-height: 1.6; }
         
-        .search-bar {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 0.95rem;
-            background: #fafafa;
-        }
+        .search-bar { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; background: #fafafa; }
 
         /* LIST FINALIS ALA KREENCONNECT */
-        .list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
+        .list-container { display: flex; flex-direction: column; gap: 15px; }
         .card-finalis { 
-            background: var(--card-bg); 
-            border-radius: 8px; 
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
-            border: 1px solid var(--border-color);
-            gap: 15px;
+            background: var(--card-bg); border-radius: 8px; padding: 15px; display: flex; align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border-color); gap: 15px;
         }
-
         @media (max-width: 600px) {
-            .card-finalis {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .action-area {
-                width: 100%;
-                justify-content: space-between;
-                flex-direction: row;
-                align-items: center;
-            }
+            .card-finalis { flex-direction: column; align-items: flex-start; }
+            .action-area { width: 100%; justify-content: space-between; flex-direction: row; align-items: center; }
+            .tab-btn { font-size: 0.8rem; padding: 12px 5px; }
         }
 
         .foto-container { width: 80px; height: 100px; flex-shrink: 0; background: #eee; border-radius: 6px; overflow: hidden;}
         .foto { width: 100%; height: 100%; object-fit: cover; }
-        
         .info-area { flex-grow: 1; }
         .info-area h4 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--text-dark); }
         .kategori-text { margin: 0 0 5px 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;}
         .nomor-urut { display: inline-block; background: #eef2f6; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; color: #555; margin-bottom: 5px;}
         .harga-text { font-weight: 700; color: var(--text-dark); font-size: 0.95rem; margin-top: 5px;}
+        .total-vote-badge { font-size: 0.85rem; color: var(--blue-kreen); font-weight: 700; margin-top: 5px; display: inline-block; background: #e6f0fa; padding: 3px 8px; border-radius: 4px;}
         
         .action-area { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0;}
-        
-        /* TOMBOL & INPUT (Gaya Kreen) */
         .vote-control { display: flex; align-items: center; gap: 5px; }
         .input-vote { width: 50px; padding: 6px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; font-size: 0.9rem; }
         .btn-vote { background: var(--blue-kreen); color: white; border: none; padding: 8px 25px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: background 0.2s;}
         .btn-vote:hover { background: #004494; }
-        
         .btn-detail { background: none; border: none; color: var(--blue-kreen); font-size: 0.85rem; cursor: pointer; text-decoration: underline; padding: 0; }
+
+        /* LEADERBOARD STYLE */
+        .rank-badge { width: 30px; height: 30px; background: #f1f5f9; color: #333; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 15px; font-size: 1rem; border: 2px solid #e2e8f0; }
+        .rank-1 { background: #fef08a; color: #854d0e; border-color: #eab308; } /* Emas */
+        .rank-2 { background: #e2e8f0; color: #475569; border-color: #94a3b8; } /* Perak */
+        .rank-3 { background: #fed7aa; color: #9a3412; border-color: #f97316; } /* Perunggu */
         
         /* MODAL POPUP */
         .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
@@ -136,19 +111,50 @@
 
 <div class="container">
     
-    <div class="section-box">
-        <h3>Deskripsi</h3>
-        <p>Vote your Favorite. Voting tertinggi akan menjadi salah satu golden ticket finalis untuk langsung masuk ke babak selanjutnya.</p>
+    <!-- NAVIGATION TABS -->
+    <div class="tab-menu">
+        <button class="tab-btn active" onclick="bukaTab(event, 'tab-deskripsi')">Deskripsi</button>
+        <button class="tab-btn" onclick="bukaTab(event, 'tab-leaderboard')">Leaderboard</button>
+        <button class="tab-btn" onclick="bukaTab(event, 'tab-finalis')">Finalis</button>
+        <button class="tab-btn" onclick="bukaTab(event, 'tab-dukungan')">Dukungan</button>
     </div>
 
-    <div class="section-box" style="padding: 15px;">
-        <input type="text" class="search-bar" placeholder="Temukan Finalis..." readonly>
+    <!-- TAB 1: DESKRIPSI -->
+    <div id="tab-deskripsi" class="tab-content active">
+        <div class="section-box">
+            <h3>Tentang Event</h3>
+            <p>Vote your Favorite. Voting tertinggi akan mendapatkan golden ticket finalis untuk langsung masuk ke babak selanjutnya. Dukung jagoanmu sekarang agar tidak tereliminasi!</p>
+            <br>
+            <h3>Syarat & Ketentuan</h3>
+            <p>- Harga 1 Vote adalah Rp 5.000<br>- Pembayaran menggunakan metode QRIS, GoPay, dan Transfer Bank<br>- Vote yang sudah masuk tidak dapat dibatalkan</p>
+        </div>
     </div>
 
-    <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Vote Finalis Favoritmu</h3>
-    
-    <div id="listFinalis" class="list-container">
-        <p style="text-align: center; color: #777;">Memuat data finalis...</p>
+    <!-- TAB 2: LEADERBOARD -->
+    <div id="tab-leaderboard" class="tab-content">
+        <h3 style="margin-bottom: 15px;">Peringkat Tertinggi (Top Finalis)</h3>
+        <div id="listLeaderboard" class="list-container">
+            <p style="text-align: center; color: #777;">Memuat klasemen...</p>
+        </div>
+    </div>
+
+    <!-- TAB 3: FINALIS (Daftar & Vote) -->
+    <div id="tab-finalis" class="tab-content">
+        <div class="section-box" style="padding: 15px;">
+            <input type="text" class="search-bar" placeholder="Temukan Finalis..." readonly>
+        </div>
+        <h3 style="margin-bottom: 15px;">Vote Finalis Favoritmu</h3>
+        <div id="listFinalis" class="list-container">
+            <p style="text-align: center; color: #777;">Memuat data finalis...</p>
+        </div>
+    </div>
+
+    <!-- TAB 4: DUKUNGAN (Riwayat Donatur) -->
+    <div id="tab-dukungan" class="tab-content">
+        <div class="section-box">
+            <h3>Dukungan Terbaru</h3>
+            <p style="text-align: center; color: #777; padding: 20px 0;">Belum ada riwayat dukungan yang ditampilkan.</p>
+        </div>
     </div>
 
 </div>
@@ -175,37 +181,56 @@
 <script>
     let dataFinalisGlobal = [];
 
+    // FUNGSI GANTI TAB
+    function bukaTab(evt, tabName) {
+        let i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
     async function loadVotingFinalis() {
         try {
             const res = await fetch('/api/finalis');
             dataFinalisGlobal = await res.json();
+            
             const list = document.getElementById('listFinalis');
+            const listBoard = document.getElementById('listLeaderboard');
+            
             list.innerHTML = '';
+            listBoard.innerHTML = '';
 
             if (dataFinalisGlobal.length === 0) {
                 list.innerHTML = '<p style="text-align:center;">Belum ada data finalis.</p>';
+                listBoard.innerHTML = '<p style="text-align:center;">Belum ada data.</p>';
                 return;
             }
 
+            // 1. RENDER TAB FINALIS
             dataFinalisGlobal.forEach((finalis, index) => {
                 const inputId = `jumlah_vote_${finalis._id}`;
-                const fotoAman = finalis.foto ? finalis.foto : '';
-                const fotoHTML = fotoAman 
-                    ? `<img src="${fotoAman}" class="foto">` 
+                const fotoHTML = finalis.foto 
+                    ? `<img src="${finalis.foto}" class="foto">` 
                     : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px;">No Foto</div>`;
 
-                // Desain per baris ala KreenConnect
                 list.innerHTML += `
                     <div class="card-finalis">
                         <div class="foto-container">${fotoHTML}</div>
-                        
                         <div class="info-area">
                             <h4>${finalis.nama}</h4>
                             <p class="kategori-text">${finalis.kategori}</p>
                             <span class="nomor-urut">${finalis.nomor}</span>
-                            <div style="font-size: 0.85rem; color: #0056b3; font-weight: 600; margin-top: 5px;">Total Vote: ${finalis.vote || 0}</div>
+                            <div class="total-vote-badge">Total Vote: ${finalis.vote || 0}</div>
                         </div>
-
                         <div class="action-area">
                             <div class="harga-text">IDR 5,000</div>
                             <div class="vote-control">
@@ -217,8 +242,35 @@
                     </div>
                 `;
             });
+
+            // 2. RENDER TAB LEADERBOARD (Otomatis urut dari tertinggi)
+            const sortedData = [...dataFinalisGlobal].sort((a, b) => (b.vote || 0) - (a.vote || 0));
+            
+            sortedData.forEach((finalis, index) => {
+                const rank = index + 1;
+                let rankClass = rank === 1 ? 'rank-1' : (rank === 2 ? 'rank-2' : (rank === 3 ? 'rank-3' : ''));
+                
+                const fotoHTML = finalis.foto 
+                    ? `<img src="${finalis.foto}" class="foto">` 
+                    : `<div style="width:100%; height:100%; background:#eee;"></div>`;
+
+                listBoard.innerHTML += `
+                    <div class="card-finalis" style="padding: 10px 15px;">
+                        <div class="rank-badge ${rankClass}">${rank}</div>
+                        <div class="foto-container" style="width: 50px; height: 50px; border-radius: 50%;">${fotoHTML}</div>
+                        <div class="info-area">
+                            <h4 style="margin: 0;">${finalis.nama}</h4>
+                            <p class="kategori-text" style="margin: 3px 0 0 0;">${finalis.kategori}</p>
+                        </div>
+                        <div class="action-area" style="align-items: center; flex-direction: row;">
+                            <div class="total-vote-badge" style="font-size: 1rem; padding: 5px 12px;">${finalis.vote || 0} Votes</div>
+                        </div>
+                    </div>
+                `;
+            });
+
         } catch (error) {
-            document.getElementById('listFinalis').innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data dari server.</p>';
+            document.getElementById('listFinalis').innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data.</p>';
         }
     }
 
