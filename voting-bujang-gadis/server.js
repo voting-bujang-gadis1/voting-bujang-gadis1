@@ -4,82 +4,64 @@ const cors = require('cors');
 
 const app = express();
 
-// Middleware
+// Middleware dinaikkan batasnya menjadi 10MB agar kuat menampung file gambar
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// =========================================================================
-// Link MongoDB sudah ditambahkan nama database "voting_db" di dalamnya
-// =========================================================================
+// Link Database Anda
 const MONGODB_URI = "mongodb+srv://defriadyfarel2_db_user:WyFkQukXehv4X248@cluster0.pnnlotx.mongodb.net/voting_db?appName=Cluster0"; 
 
 mongoose.connect(MONGODB_URI)
-    .then(() => console.log('Terkoneksi ke MongoDB Atlas (voting_db)'))
-    .catch(err => console.error('Gagal koneksi ke MongoDB:', err));
+    .then(() => console.log('Terkoneksi ke MongoDB'))
+    .catch(err => console.error('Gagal koneksi:', err));
 
 const finalisSchema = new mongoose.Schema({
     nomor: String,
     nama: String,
     kategori: String,
-    foto: String,
+    foto: String, 
     vote: { type: Number, default: 0 }
 });
 
 const Finalis = mongoose.model('Finalis', finalisSchema);
-
-// =========================================================================
-// ROUTING API
-// =========================================================================
 
 app.get('/api/finalis', async (req, res) => {
     try {
         const data = await Finalis.find();
         res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ message: "Gagal mengambil data" });
+        res.status(500).json({ message: "Error server" });
     }
 });
 
 app.post('/api/finalis', async (req, res) => {
     try {
-        const finalisBaru = new Finalis({
-            nomor: req.body.nomor,
-            nama: req.body.nama,
-            kategori: req.body.kategori,
-            foto: req.body.foto,
-            vote: 0
-        });
+        const finalisBaru = new Finalis(req.body);
         const simpan = await finalisBaru.save();
         res.status(201).json(simpan);
     } catch (error) {
-        res.status(500).json({ message: "Gagal menyimpan data finalis" });
+        res.status(500).json({ message: "Error simpan" });
     }
 });
 
-// Fitur Hapus (Dengan Pelindung Anti-Crash)
 app.delete('/api/finalis/:id', async (req, res) => {
     try {
-        const id = req.params.id;
-        
-        // PELINDUNG: Jika ID yang dikirim adalah "undefined" atau tidak valid, abaikan tanpa error
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(200).json({ message: "Data cacat diabaikan / sudah terhapus" });
+        if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+            await Finalis.findByIdAndDelete(req.params.id);
         }
-
-        await Finalis.findByIdAndDelete(id);
-        res.status(200).json({ message: "Finalis berhasil dihapus" });
+        res.status(200).json({ message: "Terhapus" });
     } catch (error) {
-        console.error("Gagal menghapus:", error);
-        res.status(500).json({ message: "Terjadi kesalahan saat menghapus data" });
+        res.status(500).json({ message: "Error hapus" });
     }
 });
 
 app.delete('/api/reset', async (req, res) => {
     try {
         await Finalis.deleteMany({});
-        res.status(200).json({ message: "Database kembali bersih!" });
+        res.status(200).json({ message: "Database Bersih" });
     } catch (error) {
-        res.status(500).json({ message: "Gagal reset data" });
+        res.status(500).json({ message: "Error reset" });
     }
 });
 
