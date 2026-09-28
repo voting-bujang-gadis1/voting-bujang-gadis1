@@ -7,7 +7,6 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Link Database Anda
 const MONGODB_URI = "mongodb+srv://defriadyfarel2_db_user:WyFkQukXehv4X248@cluster0.pnnlotx.mongodb.net/voting_db?appName=Cluster0"; 
 
 mongoose.connect(MONGODB_URI)
@@ -21,7 +20,7 @@ const finalisSchema = new mongoose.Schema({
 });
 const Finalis = mongoose.model('Finalis', finalisSchema);
 
-// SKEMA PENGATURAN WEB
+// SKEMA PENGATURAN WEB (Logo & Judul)
 const pengaturanSchema = new mongoose.Schema({
     judul: { type: String, default: "Bujang Gadis Favorit 2026" },
     subjudul: { type: String, default: "Berikan dukungan terbaikmu untuk calon juara favorit!" },
@@ -29,7 +28,7 @@ const pengaturanSchema = new mongoose.Schema({
 });
 const Pengaturan = mongoose.model('Pengaturan', pengaturanSchema);
 
-// ================= API PENGATURAN =================
+// ================= API PENGATURAN (BARU) =================
 app.get('/api/pengaturan', async (req, res) => {
     try {
         let config = await Pengaturan.findOne();
@@ -53,7 +52,7 @@ app.post('/api/pengaturan', async (req, res) => {
     } catch (error) { res.status(500).json({ message: "Error simpan pengaturan" }); }
 });
 
-// ================= API FINALIS =================
+// ================= API FINALIS (LAMA) =================
 app.get('/api/finalis', async (req, res) => {
     try {
         const data = await Finalis.find();
@@ -81,6 +80,11 @@ app.delete('/api/reset', async (req, res) => {
         await Finalis.deleteMany({});
         res.status(200).json({ message: "Database Bersih" });
     } catch (error) { res.status(500).json({ message: "Error reset" }); }
+});
+
+// Penangkap Error 404 untuk jaga-jaga
+app.use((req, res) => {
+    res.status(404).json({ message: "Rute API tidak ditemukan!" });
 });
 
 module.exports = app;
