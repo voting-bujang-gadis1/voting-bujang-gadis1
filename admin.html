@@ -30,7 +30,6 @@
 <div class="container">
     <header><h1>Panel Admin</h1><p>Kelola Pengaturan Web & Data Finalis</p></header>
 
-    <!-- PENGATURAN WEBSITE (Logo & Judul) -->
     <div class="card" style="border-left: 5px solid #0ea5e9;">
         <h2>⚙️ Pengaturan Identitas Website</h2>
         <form id="formPengaturan">
@@ -68,21 +67,20 @@
 </div>
 
 <script>
-    // --- FITUR PENGATURAN WEB ---
     async function loadPengaturan() {
         try {
             const res = await fetch('/api/pengaturan');
             const config = await res.json();
-            document.getElementById('judulWeb').value = config.judul;
-            document.getElementById('subjudulWeb').value = config.subjudul;
-            document.getElementById('previewLogo').src = config.logo;
-        } catch (error) { console.error("Gagal load pengaturan"); }
+            if (config.judul) document.getElementById('judulWeb').value = config.judul;
+            if (config.subjudul) document.getElementById('subjudulWeb').value = config.subjudul;
+            if (config.logo) document.getElementById('previewLogo').src = config.logo;
+        } catch (error) { console.error("Belum ada data pengaturan"); }
     }
 
     document.getElementById('formPengaturan').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btnSimpanPengaturan');
-        btn.innerText = "Menyimpan..."; btn.disabled = true;
+        btn.innerText = "Menyimpan (Tunggu)..."; btn.disabled = true;
 
         const dataPengaturan = {
             judul: document.getElementById('judulWeb').value,
@@ -97,7 +95,7 @@
                 const img = new Image();
                 img.onload = async function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 200; // Logo dikecilkan
+                    const MAX_WIDTH = 250;
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
@@ -118,12 +116,22 @@
             const res = await fetch('/api/pengaturan', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
             });
-            if(res.ok) { alert("Pengaturan Website Berhasil Diperbarui!"); loadPengaturan(); }
-        } catch (e) { alert("Gagal update pengaturan"); }
-        finally { document.getElementById('btnSimpanPengaturan').innerText = "Simpan Pengaturan Web"; document.getElementById('btnSimpanPengaturan').disabled = false; }
+            if(res.ok) { 
+                alert("SUKSES! Pengaturan Website Berhasil Diperbarui."); 
+                loadPengaturan(); 
+            } else {
+                alert("GAGAL! Server menolak permintaan. (Status: " + res.status + "). Pastikan Vercel sudah selesai update.");
+            }
+        } catch (e) { 
+            alert("Kesalahan jaringan: " + e.message); 
+        }
+        finally { 
+            document.getElementById('btnSimpanPengaturan').innerText = "Simpan Pengaturan Web"; 
+            document.getElementById('btnSimpanPengaturan').disabled = false; 
+        }
     }
 
-    // --- FITUR FINALIS (Sama seperti sebelumnya) ---
+    // Fungsi Finalis
     async function loadAdminFinalis() {
         const res = await fetch('/api/finalis');
         const data = await res.json();
