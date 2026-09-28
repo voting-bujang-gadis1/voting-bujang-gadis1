@@ -10,46 +10,137 @@
             src="https://app.sandbox.midtrans.com/snap/snap.js"
             data-client-key="SB-Mid-client-J0bLntU0o8QdZkI9"></script>
 
-    <style>
-        :root { --primary: #0284c7; --bg-main: #e0f2fe; --card-bg: #ffffff; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-main); margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        h1 { text-align: center; color: var(--primary); }
-        
-        .card { background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #bae6fd; }
-        .nomor { font-size: 1.5rem; font-weight: bold; color: var(--primary); width: 40px; text-align: center; }
-        .foto { width: 70px; height: 90px; object-fit: cover; border-radius: 10px; margin-right: 15px; background: #e2e8f0; }
-        .info { flex-grow: 1; }
-        .info h3 { margin: 0 0 5px 0; font-size: 1.2rem; color: #1e293b; }
-        .kategori { margin: 0 0 5px 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
-        .vote-count { margin: 0; font-weight: bold; color: var(--primary); }
-        
-        .action-area { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-        .input-vote { width: 60px; padding: 5px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; font-size: 1rem; }
-        .btn-vote { background: var(--primary); color: white; border: none; padding: 6px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; box-sizing: border-box; }
-        .btn-vote:hover { background: #0369a1; }
-        .btn-profil { background: #f8fafc; color: var(--primary); border: 1px solid var(--primary); padding: 4px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; box-sizing: border-box; font-size: 0.85rem;}
-        .btn-profil:hover { background: #e0f2fe; }
+    <!-- FONT GOOGLE: POPPINS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-        /* DESAIN POPUP MODAL PROFIL */
-        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
-        .modal-content { background-color: #fff; margin: 10% auto; padding: 25px; border-radius: 15px; width: 85%; max-width: 500px; max-height: 80vh; overflow-y: auto; position: relative; }
-        .close-btn { position: absolute; right: 20px; top: 15px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close-btn:hover { color: #000; }
-        .modal-foto { width: 120px; height: 150px; object-fit: cover; border-radius: 10px; display: block; margin: 0 auto 15px auto; }
-        .modal-title { text-align: center; color: var(--primary); margin: 0 0 5px 0; }
-        .modal-sub { text-align: center; color: #64748b; font-size: 0.9rem; text-transform: uppercase; margin: 0 0 20px 0; }
-        .modal-section { margin-bottom: 15px; }
-        .modal-section h4 { margin: 0 0 5px 0; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
-        .modal-section p { margin: 0; color: #475569; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
+    <style>
+        :root { 
+            --primary: #2563eb; /* Royal Blue */
+            --primary-dark: #1d4ed8; /* Dark Blue */
+            --bg-soft-blue: #eff6ff; /* Background biru sangat lembut */
+            --bg-gradient: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            --card-bg: #ffffff; 
+            --text-dark: #1e3a8a; /* Teks dominan biru gelap */
+            --text-muted: #475569;
+        }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: var(--bg-gradient); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* HEADER BANNER - GRADASI BIRU LAUT DALAM */
+        .header-banner {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+        .header-banner h1 { margin: 0; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 1.5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header-banner p { margin: 10px 0 0 0; font-size: 1.1rem; opacity: 0.95; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* GRID LAYOUT KOTAK-KOTAK */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+            padding-bottom: 50px;
+        }
+
+        /* DESAIN CARD FINALIS - BORDER BIRU */
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.1); 
+            border: 2px solid #bfdbfe; /* Garis tepi biru muda */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.25);
+            border-color: var(--primary);
+        }
+
+        /* BADGE NOMOR - BIRU TUA */
+        .nomor-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(30, 58, 138, 0.85); /* Biru tua transparan */
+            color: white;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.2rem;
+            backdrop-filter: blur(4px);
+            border: 2px solid #bfdbfe;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .foto-container { width: 100%; height: 300px; background: #dbeafe; }
+        .foto { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* INFO FINALIS */
+        .info { padding: 20px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; }
+        .info h3 { margin: 0 0 5px 0; font-size: 1.3rem; color: #1e3a8a; }
+        .kategori { margin: 0 0 15px 0; font-size: 0.85rem; color: #3b82f6; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+        .vote-count { margin: 0 0 20px 0; font-size: 1.2rem; font-weight: 700; color: #1e40af; background: #dbeafe; display: inline-block; padding: 6px 15px; border-radius: 20px; align-self: center; border: 1px solid #bfdbfe; }
+        
+        .action-area { margin-top: auto; display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        
+        /* INPUT JUMLAH VOTE (Desain Biru) */
+        .input-group { display: flex; align-items: center; justify-content: space-between; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 5px 10px; }
+        .input-group label { font-size: 0.9rem; font-weight: 600; color: #1e3a8a; }
+        .input-vote { width: 60px; padding: 8px; border: 1px solid #93c5fd; background: white; border-radius: 6px; text-align: center; font-size: 1rem; font-weight: bold; color: var(--text-dark); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); outline: none;}
+        .input-vote:focus { border-color: var(--primary); }
+        
+        /* TOMBOL AKSI BIRU */
+        .btn-vote { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; font-family: 'Poppins', sans-serif; transition: background 0.3s, transform 0.1s; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
+        .btn-vote:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: scale(1.02); }
+        
+        .btn-profil { background: white; color: var(--primary); border: 2px solid var(--primary); padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.9rem; font-family: 'Poppins', sans-serif; transition: all 0.3s; }
+        .btn-profil:hover { background: var(--bg-soft-blue); color: var(--primary-dark); border-color: var(--primary-dark); }
+
+        /* MODAL (POPUP PROFIL) NUANSA BIRU */
+        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); }
+        .modal-content { background-color: #fff; margin: 5% auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; border: 4px solid #bfdbfe; box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.3); }
+        .close-btn { position: absolute; right: 25px; top: 20px; color: #94a3b8; font-size: 32px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
+        .close-btn:hover { color: #1e3a8a; }
+        .modal-foto { width: 150px; height: 150px; object-fit: cover; border-radius: 50%; display: block; margin: 0 auto 15px auto; border: 5px solid #dbeafe; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
+        .modal-title { text-align: center; color: #1e3a8a; margin: 0 0 5px 0; font-size: 1.6rem; font-weight: 700; }
+        .modal-sub { text-align: center; color: #3b82f6; font-size: 0.9rem; text-transform: uppercase; font-weight: 700; margin: 0 0 25px 0; letter-spacing: 1px;}
+        .modal-section { margin-bottom: 20px; background: #f0f9ff; padding: 18px; border-radius: 12px; border: 1px solid #bfdbfe; border-left: 5px solid var(--primary); }
+        .modal-section h4 { margin: 0 0 8px 0; color: #1e40af; font-size: 1.05rem; }
+        .modal-section p { margin: 0; color: #334155; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
+<div class="header-banner">
+    <h1>Bujang Gadis Favorit 2026</h1>
+    <p>Dukung perwakilan terbaik Anda dengan memberikan voting sebanyak-banyaknya!</p>
+</div>
+
 <div class="container">
-    <h1>Daftar Finalis</h1>
-    <div id="listFinalis">
-        <p style="text-align: center;">Memuat data...</p>
+    <div id="listFinalis" class="grid-container">
+        <!-- Loader sementara -->
+        <p style="text-align: center; width: 100%; color: #3b82f6; font-size: 1.2rem; font-weight: bold;">Memuat daftar finalis...</p>
     </div>
 </div>
 
@@ -62,18 +153,17 @@
         <p id="mKategori" class="modal-sub">Kategori</p>
         
         <div class="modal-section">
-            <h4>Biodata Singkat</h4>
+            <h4>📌 Biodata Singkat</h4>
             <p id="mBiodata">-</p>
         </div>
         <div class="modal-section">
-            <h4>Visi & Misi</h4>
+            <h4>🎯 Visi & Misi</h4>
             <p id="mVisiMisi">-</p>
         </div>
     </div>
 </div>
 
 <script>
-    // Menyimpan data finalis agar bisa dipanggil ke modal tanpa loading lagi
     let dataFinalisGlobal = [];
 
     async function loadVotingFinalis() {
@@ -83,44 +173,53 @@
             const list = document.getElementById('listFinalis');
             list.innerHTML = '';
 
+            if (dataFinalisGlobal.length === 0) {
+                list.innerHTML = '<p style="text-align:center; width:100%; color: #1e3a8a;">Belum ada data finalis.</p>';
+                return;
+            }
+
             dataFinalisGlobal.forEach((finalis, index) => {
                 const inputId = `jumlah_vote_${finalis._id}`;
                 const fotoAman = finalis.foto ? finalis.foto : '';
                 const fotoHTML = fotoAman 
                     ? `<img src="${fotoAman}" class="foto">` 
-                    : `<div class="foto" style="display:flex; align-items:center; justify-content:center; font-size:10px; color:gray;">No Foto</div>`;
+                    : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#60a5fa; font-weight:bold; background:#dbeafe;">No Foto</div>`;
 
                 list.innerHTML += `
                     <div class="card">
-                        <div class="nomor">${finalis.nomor}</div>
-                        ${fotoHTML}
+                        <div class="nomor-badge">${finalis.nomor}</div>
+                        <div class="foto-container">
+                            ${fotoHTML}
+                        </div>
                         <div class="info">
                             <h3>${finalis.nama}</h3>
-                            <p class="kategori">FINALIS ${finalis.kategori}</p>
-                            <p class="vote-count">${finalis.vote || 0} Votes</p>
-                        </div>
-                        <div class="action-area">
-                            <input type="number" id="${inputId}" class="input-vote" value="1" min="1">
-                            <button class="btn-vote" onclick="prosesPembayaran('${finalis._id}', '${inputId}')">Vote</button>
-                            <button class="btn-profil" onclick="bukaModal(${index})">Profil</button>
+                            <p class="kategori">Finalis ${finalis.kategori}</p>
+                            <div class="vote-count">🌟 ${finalis.vote || 0} Votes</div>
+                            
+                            <div class="action-area">
+                                <div class="input-group">
+                                    <label>Jumlah Vote:</label>
+                                    <input type="number" id="${inputId}" class="input-vote" value="1" min="1">
+                                </div>
+                                <button class="btn-vote" onclick="prosesPembayaran('${finalis._id}', '${inputId}')">Vote Sekarang</button>
+                                <button class="btn-profil" onclick="bukaModal(${index})">Lihat Profil Lengkap</button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
         } catch (error) {
-            document.getElementById('listFinalis').innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data.</p>';
+            document.getElementById('listFinalis').innerHTML = '<p style="text-align:center; width:100%; color:red;">Gagal memuat data dari server.</p>';
         }
     }
 
-    // FUNGSI MEMBUKA POPUP BIODATA
     function bukaModal(index) {
         const finalis = dataFinalisGlobal[index];
         document.getElementById('mFoto').src = finalis.foto || '';
         document.getElementById('mNama').innerText = finalis.nama;
         document.getElementById('mKategori').innerText = "Finalis " + finalis.kategori;
-        document.getElementById('mBiodata').innerText = finalis.biodata || "Belum ada biodata.";
-        document.getElementById('mVisiMisi').innerText = finalis.visiMisi || "Belum ada visi & misi.";
-        
+        document.getElementById('mBiodata').innerText = finalis.biodata || "Biodata belum tersedia.";
+        document.getElementById('mVisiMisi').innerText = finalis.visiMisi || "Visi & misi belum tersedia.";
         document.getElementById('modalProfil').style.display = 'block';
     }
 
@@ -128,7 +227,6 @@
         document.getElementById('modalProfil').style.display = 'none';
     }
 
-    // Tutup popup kalau user klik area hitam di luar kotak
     window.onclick = function(event) {
         const modal = document.getElementById('modalProfil');
         if (event.target == modal) {
@@ -161,9 +259,6 @@
                     onError: function(result) {
                         alert("Pembayaran Gagal.");
                         window.location.reload();
-                    },
-                    onClose: function() {
-                        alert("Halaman ditutup sebelum pembayaran selesai.");
                     }
                 });
             } else { alert("Gagal mendapatkan token server."); }
