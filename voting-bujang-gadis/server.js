@@ -9,15 +9,14 @@ app.use(cors());
 app.use(express.json());
 
 // =========================================================================
-// MASUKKAN LINK MONGODB ATLAS ANDA DI BAWAH INI (Di dalam tanda kutip "")
+// Link MongoDB sudah ditambahkan nama database "voting_db" di dalamnya
 // =========================================================================
-const MONGODB_URI = "mongodb+srv://defriadyfarel2_db_user:WyFkQukXehv4X248@cluster0.pnnlotx.mongodb.net/?appName=Cluster0"; 
+const MONGODB_URI = "mongodb+srv://defriadyfarel2_db_user:WyFkQukXehv4X248@cluster0.pnnlotx.mongodb.net/voting_db?appName=Cluster0"; 
 
 mongoose.connect(MONGODB_URI)
-    .then(() => console.log('Terkoneksi ke MongoDB Atlas'))
+    .then(() => console.log('Terkoneksi ke MongoDB Atlas (voting_db)'))
     .catch(err => console.error('Gagal koneksi ke MongoDB:', err));
 
-// Skema Database (Format Data Finalis)
 const finalisSchema = new mongoose.Schema({
     nomor: String,
     nama: String,
@@ -32,7 +31,6 @@ const Finalis = mongoose.model('Finalis', finalisSchema);
 // ROUTING API
 // =========================================================================
 
-// 1. Tampilkan semua data finalis (GET)
 app.get('/api/finalis', async (req, res) => {
     try {
         const data = await Finalis.find();
@@ -42,7 +40,6 @@ app.get('/api/finalis', async (req, res) => {
     }
 });
 
-// 2. Tambah finalis baru beserta link foto (POST)
 app.post('/api/finalis', async (req, res) => {
     try {
         const finalisBaru = new Finalis({
@@ -59,20 +56,24 @@ app.post('/api/finalis', async (req, res) => {
     }
 });
 
-// 3. Hapus finalis berdasarkan ID (DELETE) - Fitur Baru!
+// Fitur Hapus (Dengan Pelindung Anti-Crash)
 app.delete('/api/finalis/:id', async (req, res) => {
     try {
-        const deletedFinalis = await Finalis.findByIdAndDelete(req.params.id);
-        if (!deletedFinalis) {
-            return res.status(404).json({ message: "Finalis tidak ditemukan" });
+        const id = req.params.id;
+        
+        // PELINDUNG: Jika ID yang dikirim adalah "undefined" atau tidak valid, abaikan tanpa error
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(200).json({ message: "Data cacat diabaikan / sudah terhapus" });
         }
+
+        await Finalis.findByIdAndDelete(id);
         res.status(200).json({ message: "Finalis berhasil dihapus" });
     } catch (error) {
         console.error("Gagal menghapus:", error);
         res.status(500).json({ message: "Terjadi kesalahan saat menghapus data" });
     }
 });
-// Fitur Darurat: Reset / Hapus Semua Data
+
 app.delete('/api/reset', async (req, res) => {
     try {
         await Finalis.deleteMany({});
@@ -82,7 +83,4 @@ app.delete('/api/reset', async (req, res) => {
     }
 });
 
-// =========================================================================
-// Ekspor module untuk Vercel Serverless Function
-// =========================================================================
 module.exports = app;
