@@ -7,6 +7,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// Link Database Anda
 const MONGODB_URI = "mongodb+srv://defriadyfarel2_db_user:WyFkQukXehv4X248@cluster0.pnnlotx.mongodb.net/voting_db?appName=Cluster0"; 
 
 mongoose.connect(MONGODB_URI)
@@ -20,7 +21,7 @@ const finalisSchema = new mongoose.Schema({
 });
 const Finalis = mongoose.model('Finalis', finalisSchema);
 
-// SKEMA BARU: PENGATURAN WEB (Logo & Judul)
+// SKEMA PENGATURAN WEB
 const pengaturanSchema = new mongoose.Schema({
     judul: { type: String, default: "Bujang Gadis Favorit 2026" },
     subjudul: { type: String, default: "Berikan dukungan terbaikmu untuk calon juara favorit!" },
@@ -32,7 +33,7 @@ const Pengaturan = mongoose.model('Pengaturan', pengaturanSchema);
 app.get('/api/pengaturan', async (req, res) => {
     try {
         let config = await Pengaturan.findOne();
-        if (!config) config = await Pengaturan.create({}); // Buat default jika kosong
+        if (!config) config = await Pengaturan.create({}); 
         res.status(200).json(config);
     } catch (error) { res.status(500).json({ message: "Error server" }); }
 });
@@ -41,8 +42,8 @@ app.post('/api/pengaturan', async (req, res) => {
     try {
         let config = await Pengaturan.findOne();
         if (config) {
-            config.judul = req.body.judul || config.judul;
-            config.subjudul = req.body.subjudul || config.subjudul;
+            if (req.body.judul) config.judul = req.body.judul;
+            if (req.body.subjudul) config.subjudul = req.body.subjudul;
             if (req.body.logo) config.logo = req.body.logo;
             await config.save();
         } else {
@@ -59,6 +60,7 @@ app.get('/api/finalis', async (req, res) => {
         res.status(200).json(data);
     } catch (error) { res.status(500).json({ message: "Error server" }); }
 });
+
 app.post('/api/finalis', async (req, res) => {
     try {
         const finalisBaru = new Finalis(req.body);
@@ -66,12 +68,14 @@ app.post('/api/finalis', async (req, res) => {
         res.status(201).json(simpan);
     } catch (error) { res.status(500).json({ message: "Error simpan" }); }
 });
+
 app.delete('/api/finalis/:id', async (req, res) => {
     try {
         if (mongoose.Types.ObjectId.isValid(req.params.id)) await Finalis.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: "Terhapus" });
     } catch (error) { res.status(500).json({ message: "Error hapus" }); }
 });
+
 app.delete('/api/reset', async (req, res) => {
     try {
         await Finalis.deleteMany({});
