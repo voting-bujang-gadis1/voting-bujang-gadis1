@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - Bujang Gadis 2026</title>
+    <title>Panel Admin - Bujang Gadis</title>
     <style>
         :root { --primary: #0284c7; --bg-gradient: #f0f9ff; --card-bg: #ffffff; --text-main: #0f172a; --border: #bae6fd; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--text-main); margin: 0; padding: 20px; }
@@ -13,7 +13,7 @@
         h2 { margin-top: 0; color: var(--primary); }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit;}
         button { background: var(--primary); color: white; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
         button:hover { background: #0369a1; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
@@ -29,7 +29,7 @@
 <div class="container">
     <header>
         <h1>Panel Admin</h1>
-        <p>Kelola Data dan Foto Finalis</p>
+        <p>Kelola Data, Foto, dan Biodata Finalis</p>
     </header>
 
     <div class="card">
@@ -40,8 +40,13 @@
             <div class="form-group"><label>Kategori</label>
                 <select id="kategori" required><option value="bujang">Bujang</option><option value="gadis">Gadis</option></select>
             </div>
+            
+            <!-- Tambahan Biodata & Visi Misi -->
+            <div class="form-group"><label>Biodata Singkat</label><textarea id="biodata" rows="3" placeholder="Contoh: Lahir di Palembang, Hobi Membaca..."></textarea></div>
+            <div class="form-group"><label>Visi & Misi</label><textarea id="visiMisi" rows="3" placeholder="Contoh: Menjadikan generasi muda berbudaya..."></textarea></div>
+            
             <div class="form-group">
-                <label style="color: #0284c7;">Pilih File Foto (Disimpan langsung ke sistem):</label>
+                <label style="color: #0284c7;">Pilih File Foto:</label>
                 <input type="file" id="fotoFile" accept="image/*" required style="background: #e0f2fe; padding: 10px;">
             </div>
             <button type="submit" id="btnSimpan">Simpan Finalis</button>
@@ -84,7 +89,6 @@
         reader.onload = function(event) {
             const img = new Image();
             img.onload = async function() {
-                // Mengecilkan ukuran gambar agar server tidak meledak
                 const canvas = document.createElement('canvas');
                 const MAX_WIDTH = 300;
                 const scaleSize = MAX_WIDTH / img.width;
@@ -93,13 +97,15 @@
                 
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                const fotoBase64 = canvas.toDataURL('image/jpeg', 0.7); // Format JPG kualitas baik
+                const fotoBase64 = canvas.toDataURL('image/jpeg', 0.7); 
 
                 const dataBaru = {
                     nama: document.getElementById('nama').value,
                     nomor: document.getElementById('nomor').value,
                     kategori: document.getElementById('kategori').value,
-                    foto: fotoBase64
+                    foto: fotoBase64,
+                    biodata: document.getElementById('biodata').value, // Ambil teks biodata
+                    visiMisi: document.getElementById('visiMisi').value // Ambil teks visi misi
                 };
 
                 try {
