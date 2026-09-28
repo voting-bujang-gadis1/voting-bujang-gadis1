@@ -3,44 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pemilihan Bujang & Gadis 2026</title>
+    <title>Voting Bujang Gadis 2026</title>
+    
+    <!-- SCRIPT MIDTRANS SANDBOX -->
+    <!-- Ganti "ClientKey_Anda_Disini" dengan Client Key Midtrans Sandbox Anda -->
+    <script type="text/javascript"
+            src="https://app.sandbox.midtrans.com/snap/snap.js"
+            data-client-key="ClientKey_Anda_Disini"></script>
+
     <style>
         :root {
-            --primary: #0284c7; --primary-hover: #0369a1; --primary-light: #e0f2fe;
-            --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
-            --shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.12);
+            --primary: #0284c7; 
+            --bg-main: #e0f2fe; 
+            --card-bg: #ffffff;
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-gradient); margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-        header { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; text-align: center; padding: 40px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
-        header h1 { font-size: 1.8rem; margin: 0 0 10px; font-weight: 800; }
-        header p { margin: 0; opacity: 0.95; }
-        .main-container { max-width: 480px; width: 100%; margin: -25px auto 30px; padding: 0 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px; z-index: 10; }
-        .category-card { background: var(--card-bg); border-radius: 20px; padding: 25px; text-align: center; box-shadow: var(--shadow); text-decoration: none; color: var(--text-main); position: relative; overflow: hidden; border: 1px solid rgba(186, 230, 253, 0.6); transition: transform 0.3s; }
-        .category-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--primary); }
-        .category-card:hover { transform: translateY(-6px); border-color: var(--primary); }
-        .category-card h2 { margin: 0 0 6px; font-size: 1.35rem; }
-        .category-card p { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 20px; }
-        .btn-vote { display: block; background: var(--primary-light); color: var(--primary); padding: 12px; border-radius: 12px; font-weight: 700; transition: background 0.2s; }
-        .category-card:hover .btn-vote { background: var(--primary); color: white; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-main); 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
+        h1 { 
+            text-align: center; 
+            color: var(--primary); 
+        }
+        
+        /* Desain Card sesuai screenshot Anda */
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 15px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #bae6fd;
+        }
+        .nomor { 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            color: var(--primary); 
+            width: 40px; 
+            text-align: center; 
+        }
+        .foto { 
+            width: 70px; 
+            height: 90px; 
+            object-fit: cover; 
+            border-radius: 10px; 
+            margin-right: 15px; 
+            background: #e2e8f0;
+        }
+        .info { 
+            flex-grow: 1; 
+        }
+        .info h3 { 
+            margin: 0 0 5px 0; 
+            font-size: 1.2rem; 
+            color: #1e293b; 
+        }
+        .kategori { 
+            margin: 0 0 5px 0; 
+            font-size: 0.8rem; 
+            color: #64748b; 
+            text-transform: uppercase; 
+        }
+        .vote-count { 
+            margin: 0; 
+            font-weight: bold; 
+            color: var(--primary); 
+        }
+        
+        /* Bagian Kanan (Input & Tombol) */
+        .action-area { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
+            gap: 8px; 
+        }
+        .input-vote { 
+            width: 60px; 
+            padding: 5px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            text-align: center; 
+            font-size: 1rem;
+        }
+        .btn-vote { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 8px 20px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        .btn-vote:hover { 
+            background: #0369a1; 
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Bujang & Gadis 2026</h1>
-        <p>Pilih kategori dan berikan dukungan terbaikmu!</p>
-    </header>
-    <div class="main-container">
-        <a href="/vote-bujang.html" class="category-card">
-            <h2>Pemilihan Bujang</h2>
-            <p>Dukung finalis Bujang favorit pilihan Anda</p>
-            <div class="btn-vote">Pilih Kategori Bujang</div>
-        </a>
-        <a href="/vote-gadis.html" class="category-card">
-            <h2>Pemilihan Gadis</h2>
-            <p>Dukung finalis Gadis favorit pilihan Anda</p>
-            <div class="btn-vote">Pilih Kategori Gadis</div>
-        </a>
+
+<div class="container">
+    <h1>Daftar Finalis</h1>
+    <div id="listFinalis">
+        <!-- Data finalis akan muncul di sini -->
+        <p style="text-align: center;">Memuat data...</p>
     </div>
+</div>
+
+<script>
+    // 1. Fungsi untuk memuat data dari database dan menampilkannya
+    async function loadVotingFinalis() {
+        try {
+            const res = await fetch('/api/finalis');
+            const data = await res.json();
+            const list = document.getElementById('listFinalis');
+            list.innerHTML = '';
+
+            data.forEach(finalis => {
+                const inputId = `jumlah_vote_${finalis._id}`;
+                const fotoAman = finalis.foto ? finalis.foto : '';
+                const fotoHTML = fotoAman 
+                    ? `<img src="${fotoAman}" class="foto">` 
+                    : `<div class="foto" style="display:flex; align-items:center; justify-content:center; font-size:10px; color:gray;">No Foto</div>`;
+
+                list.innerHTML += `
+                    <div class="card">
+                        <div class="nomor">${finalis.nomor}</div>
+                        ${fotoHTML}
+                        <div class="info">
+                            <h3>${finalis.nama}</h3>
+                            <p class="kategori">FINALIS ${finalis.kategori}</p>
+                            <p class="vote-count">${finalis.vote || 0} Votes</p>
+                        </div>
+                        <div class="action-area">
+                            <input type="number" id="${inputId}" class="input-vote" value="1" min="1">
+                            <button class="btn-vote" onclick="prosesPembayaran('${finalis._id}', '${inputId}')">Vote</button>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            document.getElementById('listFinalis').innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data.</p>';
+        }
+    }
+
+    // 2. Fungsi Proses Pembayaran Midtrans
+    async function prosesPembayaran(idFinalis, inputId) {
+        const jumlahVote = document.getElementById(inputId).value;
+        if (jumlahVote < 1) {
+            alert("Jumlah vote minimal 1");
+            return;
+        }
+
+        try {
+            // Minta Token Midtrans ke Backend (asumsi rute backend Anda adalah /api/vote)
+            const res = await fetch('/api/vote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ finalisId: idFinalis, jumlah: jumlahVote })
+            });
+            
+            const data = await res.json();
+
+            if (data.token) {
+                // Panggil Popup Midtrans Snap
+                window.snap.pay(data.token, {
+                    onSuccess: function(result) {
+                        alert("Pembayaran Berhasil! Vote Anda telah ditambahkan.");
+                        // FITUR BARU: Otomatis kembali/refresh ke tampilan awal
+                        window.location.reload();
+                    },
+                    onPending: function(result) {
+                        alert("Menunggu pembayaran Anda!");
+                        // Tetap refresh agar data aman
+                        window.location.reload();
+                    },
+                    onError: function(result) {
+                        alert("Pembayaran Gagal.");
+                        window.location.reload();
+                    },
+                    onClose: function() {
+                        alert("Anda menutup halaman sebelum menyelesaikan pembayaran.");
+                    }
+                });
+            } else {
+                alert("Gagal mendapatkan token pembayaran dari server.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Terjadi kesalahan jaringan.");
+        }
+    }
+
+    // Panggil saat halaman pertama kali dibuka
+    loadVotingFinalis();
+</script>
+
 </body>
 </html>
