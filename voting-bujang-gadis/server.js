@@ -11,7 +11,7 @@ app.use(express.json());
 // =========================================================================
 // MASUKKAN LINK MONGODB ATLAS ANDA DI BAWAH INI (Di dalam tanda kutip "")
 // =========================================================================
-const MONGODB_URI = "MASUKKAN_LINK_MONGODB_ATLAS_ANDA_DI_SINI"; 
+const MONGODB_URI = mongodb+srv://defriadyfarel2_db_user:WyFkQukXehv4X248@cluster0.pnnlotx.mongodb.net/?appName=Cluster0; 
 
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('Terkoneksi ke MongoDB Atlas'))
