@@ -1,4 +1,3 @@
-// Pancingan update Vercel hari ini
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -14,14 +13,7 @@ mongoose.connect(MONGODB_URI)
     .then(() => console.log('Terkoneksi ke MongoDB'))
     .catch(err => console.error('Gagal koneksi:', err));
 
-// SKEMA FINALIS
-const finalisSchema = new mongoose.Schema({
-    nomor: String, nama: String, kategori: String, foto: String, 
-    biodata: String, visiMisi: String, vote: { type: Number, default: 0 }
-});
-const Finalis = mongoose.model('Finalis', finalisSchema);
-
-// SKEMA PENGATURAN WEB (Logo & Judul)
+// SKEMA PENGATURAN WEB
 const pengaturanSchema = new mongoose.Schema({
     judul: { type: String, default: "Bujang Gadis Favorit 2026" },
     subjudul: { type: String, default: "Berikan dukungan terbaikmu untuk calon juara favorit!" },
@@ -29,7 +21,14 @@ const pengaturanSchema = new mongoose.Schema({
 });
 const Pengaturan = mongoose.model('Pengaturan', pengaturanSchema);
 
-// ================= API PENGATURAN (BARU) =================
+// SKEMA FINALIS
+const finalisSchema = new mongoose.Schema({
+    nomor: String, nama: String, kategori: String, foto: String, 
+    biodata: String, visiMisi: String, vote: { type: Number, default: 0 }
+});
+const Finalis = mongoose.model('Finalis', finalisSchema);
+
+// ================= API PENGATURAN =================
 app.get('/api/pengaturan', async (req, res) => {
     try {
         let config = await Pengaturan.findOne();
@@ -49,11 +48,11 @@ app.post('/api/pengaturan', async (req, res) => {
         } else {
             config = await Pengaturan.create(req.body);
         }
-        res.status(200).json(config);
-    } catch (error) { res.status(500).json({ message: "Error simpan pengaturan" }); }
+        res.status(200).json({ message: "Sukses", data: config });
+    } catch (error) { res.status(500).json({ message: "Error simpan" }); }
 });
 
-// ================= API FINALIS (LAMA) =================
+// ================= API FINALIS =================
 app.get('/api/finalis', async (req, res) => {
     try {
         const data = await Finalis.find();
@@ -83,9 +82,9 @@ app.delete('/api/reset', async (req, res) => {
     } catch (error) { res.status(500).json({ message: "Error reset" }); }
 });
 
-// Penangkap Error 404 untuk jaga-jaga
+// Penjaga rute (Jika Vercel salah alamat, ini akan melaporkan)
 app.use((req, res) => {
-    res.status(404).json({ message: "Rute API tidak ditemukan!" });
+    res.status(404).json({ message: `Rute ${req.method} ${req.path} tidak ditemukan di server!` });
 });
 
 module.exports = app;
